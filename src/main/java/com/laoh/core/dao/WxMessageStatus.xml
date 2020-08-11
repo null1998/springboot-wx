@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//http://mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.laoh.core.dao.WxMessageStatusDao">
+    <select id="selectWxMessageStatus" resultType="com.laoh.core.entity.WxMessageStatus">
+        SELECT * FROM WX_MESSAGE_STATUS WHERE MKEY = #{mkey}
+    </select>
+    <insert id="insertWxMessageStatus">
+        INSERT INTO WX_MESSAGE_STATUS(MKEY, STATUS, RESULT, REQUESTCOUNT) VALUES(#{mkey},#{status},#{result},#{requestCount})
+    </insert>
+</mapper>
