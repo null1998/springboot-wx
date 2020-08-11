@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -135,28 +133,4 @@ public class WxConfig {
         this.expiresTime = System.currentTimeMillis() + (expiresInSeconds - 200) * 1000L;
     }
 
-    public Collection<Class<?>> scanHandler(String packageName) {
-        String parent = WxConfig.getInstance().getClass().getClassLoader().getResource("").getPath();
-        String child = packageName.replace(".", "/");
-        File dir = new File(parent, child);
-        File[] files = dir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                String fileName = pathname.getName();
-                return !fileName.equals("WxMessageHandler.class")&&fileName.endsWith(".class");
-            }
-        });
-        List<Class<?>> classes = new LinkedList<>();
-        for (File file : files) {
-            String fileName = file.getName();
-            String className = fileName.replace(".class", "");
-            try {
-                Class<?> c = Class.forName(packageName + "." +className);
-                classes.add(c);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return classes;
-    }
 }

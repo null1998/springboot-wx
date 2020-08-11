@@ -11,8 +11,7 @@ import java.util.Arrays;
  * @date 2020/7/17 23:12
  */
 public class SignUtil {
-    // 与接口配置信息中的 Token 要一致
-    private static String token = "laohwx";
+
     /**
      * 验证签名
      * @param signature
@@ -20,7 +19,7 @@ public class SignUtil {
      * @param nonce
      * @return
      */
-    public static boolean checkSignature(String signature, String timestamp, String nonce) {
+    public static boolean checkSignature(String signature, String timestamp, String nonce, String token) {
         String[] arr = new String[] { token, timestamp, nonce };
         // 将 token、timestamp、nonce 三个参数进行字典序排序
         Arrays.sort(arr);

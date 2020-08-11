@@ -42,8 +42,9 @@ public class WeiXinController {
                        @RequestParam(value = "timestamp", required = true) String timestamp,
                        @RequestParam(value = "nonce", required = true) String nonce,
                        @RequestParam(value = "echostr", required = true) String echostr) {
+        String token = "laohwx";
         try {
-            if (SignUtil.checkSignature(signature, timestamp, nonce)) {
+            if (SignUtil.checkSignature(signature, timestamp, nonce, token)) {
                 PrintWriter out = response.getWriter();
                 out.print(echostr);
                 out.close();
@@ -54,12 +55,12 @@ public class WeiXinController {
             log.error("出错");
         }
     }
-    @RequestMapping(value="/weixin",method=RequestMethod.POST, produces = "application/xml")
+    @RequestMapping(value="/weixin",method=RequestMethod.POST)
     @ResponseBody
     public String handlerMessage(@RequestBody XmlMessageRequest message){
-
-            return iService.receiveMessage(message);
+        return iService.receiveMessage(message);
     }
+
     @RequestMapping(value = "/test")
     @ResponseBody
     public void test() {

@@ -13,11 +13,12 @@ import lombok.extern.slf4j.Slf4j;
  * @author hyd
  * @date 2020/8/6 9:28
  */
-@MsgHandler
 @Slf4j
+@MsgHandler
 public class MessageHandler {
     /**
      * 执行文本消息的方法
+     *
      * @param message
      * @return
      */
@@ -26,9 +27,10 @@ public class MessageHandler {
     public Object textMessage(XmlMessageRequest message) {
         XmlTextResponse response = new XmlTextResponse(message);
         response.setMsgType(WxConstants.XML_MSG_TEXT);
-        response.setContent("你好");
+        response.setContent("该消息关键字为你好");
         return response;
     }
+
     /**
      * 执行文本消息的方法
      * @param message
@@ -39,20 +41,7 @@ public class MessageHandler {
     public Object textMessage2(XmlMessageRequest message) {
         XmlTextResponse response = new XmlTextResponse(message);
         response.setMsgType(WxConstants.XML_MSG_TEXT);
-        response.setContent("你");
-        return response;
-    }
-    /**
-     * 执行文本消息的方法
-     * @param message
-     * @return
-     */
-    @Text
-    @ResponseXml
-    public Object textMessage3(XmlMessageRequest message) {
-        XmlTextResponse response = new XmlTextResponse(message);
-        response.setMsgType(WxConstants.XML_MSG_TEXT);
-        response.setContent("默认");
+        response.setContent("该消息关键字为你");
         return response;
     }
     /**
@@ -77,8 +66,7 @@ public class MessageHandler {
     public Object clickEvent2(XmlMessageRequest message) {
         XmlTextResponse response = new XmlTextResponse(message);
         response.setMsgType(WxConstants.XML_MSG_TEXT);
-        response.setContent("KEY_2_1");
-        log.info("KEY_2_1");
+        response.setContent("来自按钮KEY_2_1的点击事件");
         return response;
     }
 }
