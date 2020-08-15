@@ -12,6 +12,26 @@ import java.util.List;
  */
 public interface IService {
     /**
+     * 接入认证
+     * @param signature
+     * @param timestamp
+     * @param nonce
+     * @param echo
+     * @return
+     */
+    public String checkSignature(String signature, String timestamp, String nonce, String echo);
+    /**
+     * 获取微信callback IP地址
+     * @return
+     */
+    public List<Object> getCallBackIp();
+
+    /**
+     * 获取微信API接口 IP地址
+     * @return
+     */
+    public List<Object> getApiDomainIp();
+    /**
      * 创建自定义菜单
      * @param buttons 一级菜单，最多三个
      * @return 创建菜单是否成功

@@ -1,55 +1,145 @@
-# springboot-wx
-微信公众号开发框架
+# 微信公众号开发框架v1
 
-## 接入服务
+[toc]
 
-SignUtil中实现了接入认证地业务逻辑，用户只要在对应的请求地址上调用checkSignature方法就可以进行接入认证，使用示例：
+## 一、开始开发
+
+### 接入微信公众平台开发
+
+[微信公众平台接入要求详见](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Access_Overview.html)
+
+使用示例：
 
 ```
-if (SignUtil.checkSignature(signature, timestamp, nonce, token)) {
-    PrintWriter out = response.getWriter();
-    out.print(echostr);
-    out.close();
+@GetMapping("/weixin")
+@ResponseBody
+public String checkSinnature(
+                   @RequestParam(value = "signature") String signature,
+                   @RequestParam(value = "timestamp") String timestamp,
+                   @RequestParam(value = "nonce") String nonce,
+                   @RequestParam(value = "echostr") String echostr) {
+    return iService.checkSignature(signature, timestamp, nonce, echostr);
 }
 ```
 
-## Token生命周期管理
+注意：使用时路径要与接口配置信息中的URL一致，要使用GET方法
 
-access_token是公众号的全局唯一接口调用凭据，access_token的有效期目前为2个小时，需定时刷新。因为每天获取token的次数有限，并且为了避免频繁请求token导致许多不必要的开销，必须要对token的生命周期进行管理。用户只要在wx.properties配置文件里设置下面的三个字段。就可以利用配置类WxConfig来进行获取token，刷新token等操作。
+### 获取Access token
 
-```
-wx.appId=
-wx.appSecret=
-wx.token=
-```
+[access token相关要求详见](https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Get_access_token.html)
 
-## 自定义菜单
+access_token是公众号的全局唯一接口调用凭据，access_token的有效期为2个小时，需定时刷新。因为每天获取access_token的次数有限，并且频繁请求access_token会导致不必要的开销，所以微信开发框架对token进行了管理周期管理。
 
-微信开发框架的大部分实用的方法在IService的实现类WxService中。比如自定义菜单的相关方法
+- takeAccessToken():String  获取token
+- takeAccessToken(boolean):String 获取时可以选择是否获得最新的token
+- expireAccessToken():void 使现有token失效
+- isAccessTokenExpired():boolean 判断token是否失效
 
-- 创建菜单接口
-
-```
-boolean menuCreate(List<JsonButtonEntity> buttons)
-```
-
-微信服务器创建菜单时要求在post请求中插入json数据，用来设置按钮数据。这里把按钮抽象为实体类。用户只要把各个按钮的属性设置好，传入接口，就可以创建想要的菜单。
-
-- 查询菜单接口，返回json格式字符串
+使用示例：
 
 ```
-String menuQuery();
+WxConfig wxConfig = WxConfig.getInstance();
+String accessToken = wxConfig.getAccessToken();
 ```
 
-- 删除菜单接口
+### 获取微信服务器IP地址
+
+如果公众号基于安全等考虑，需要获知微信服务器的IP地址列表，以便进行相关限制，可以通过该接口获得微信服务器IP地址列表或者IP网段信息。
+
+#### 获取微信callback IP地址
+
+使用示例：
 
 ```
-boolean menuDelete();
+List<Object> cbip =  wxService.getCallBackIp();
 ```
 
-## 消息管理
+#### 获取微信API接口 IP地址
 
-- 开启消息接收服务，在springboot的Controller下，设置一个接收方法就可以。
+使用示例：
+
+```
+List<Object> adip =  wxService.getApiDomainIp();
+```
+
+## 二、自定义菜单
+
+### 创建菜单
+
+[多种类型按钮详见](https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Creating_Custom-Defined_Menu.html)
+
+使用示例：
+
+```
+//生成一个2*2的菜单
+//一级菜单
+JsonButtonEntity button1 = new JsonButtonEntity();
+button1.setName("点击");
+List<JsonButtonEntity> sub_button1 = new LinkedList<>();
+//二级菜单
+JsonButtonEntity button1_1 = new JsonButtonEntity();
+button1_1.setName("点击1");
+button1_1.setType("click");
+button1_1.setKey("key1_1");
+sub_button1.add(button1_1);
+//二级菜单
+JsonButtonEntity button1_2 = new JsonButtonEntity();
+button1_2.setName("点击2");
+button1_2.setType("click");
+button1_2.setKey("key1_2");
+sub_button1.add(button1_2);
+button1.setSub_button(sub_button1);
+
+
+//一级菜单
+JsonButtonEntity button2 = new JsonButtonEntity();
+button2.setName("链接");
+List<JsonButtonEntity> sub_button2 = new LinkedList<>();
+//二级菜单
+JsonButtonEntity button2_1 = new JsonButtonEntity();
+button2_1.setName("百度");
+button2_1.setType("view");
+button2_1.setUrl("http://www.baidu.com/");
+sub_button2.add(button2_1);
+//二级菜单
+JsonButtonEntity button2_2 = new JsonButtonEntity();
+button2_2.setName("哔哩哔哩");
+button2_2.setType("view");
+button2_2.setUrl("https://www.bilibili.com/");
+sub_button2.add(button2_2);
+button2.setSub_button(sub_button2);
+
+//整合所有一级菜单
+List<JsonButtonEntity> buttons = new ArrayList<>();
+buttons.add(button1);
+buttons.add(button2);
+//调用创建菜单接口
+wxService.menuCreate(buttons);
+```
+
+### 查询菜单
+
+[返回菜单参数详见](https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Querying_Custom_Menus.html)
+
+使用示例：
+
+```
+String menu = wxService.menuQuery()
+```
+
+返回的菜单信息是Json格式字符串
+
+### 删除菜单
+
+使用示例：
+
+```
+boolean isDelete = wxService.menuDelete()
+```
+
+## 三、消息管理
+
+使用示例：
 
 ```
 @RequestMapping(value="/weixin",method=RequestMethod.POST)
@@ -59,38 +149,15 @@ public String handlerMessage(@RequestBody XmlMessageRequest message){
 }
 ```
 
-- 针对不同消息的具体业务逻辑实现
+以上代码用于接收消息，但处理各种不同类型的消息需要利用不同的注解。
 
-示例：
+首先要在处理消息的类上加@MsgHandler，这样框架会扫描该类下的方法，并且在收到消息时，从中找出最匹配的一个方法，对消息进行处理。
 
-```
-@MsgHandler
-public class MessageHandler {
-    /**
-     * 执行文本消息的方法
-     *
-     * @param message
-     * @return
-     */
-    @Text(contains = "你好")
-    @ResponseXml
-    public Object textMessage(XmlMessageRequest message) {
-        XmlTextResponse response = new XmlTextResponse(message);
-        response.setMsgType(WxConstants.XML_MSG_TEXT);
-        response.setContent("该消息关键字为你好");
-        return response;
-    }
+#### 接收普通消息
 
-}
-```
+##### 文本消息
 
-利用@MsgHandler注解，将一个类标注为消息处理类，可以在该类下编写微信消息管理业务。
-
-不同方法使用不同业务注解，比如：
-
-- @Text(contains = "")文本消息，contains可以自定义关键字，方便处理不同文本请求。多个方法同时符合要求的情况下，最大匹配长度的优先。如果不希望使用关键字，可以不设置contains字段。
-
-示例1：
+使用示例：
 
 ```
 @Text(contains = "你好")
@@ -103,39 +170,98 @@ public Object textMessage(XmlMessageRequest message) {
 }
 ```
 
-示例2：
+@Text表示该方法用于处理文本消息，contains用于匹配关键字。若文本消息匹配多个@Text方法，则以最长匹配的方法为处理方法。如果忽略contains字段，则视为默认处理方法，所有文本消息都会由该方法处理。
+
+@ResponseXml表示将返回值转化为XML格式的字符串，否则，返回toString()的值。
+
+##### 图片消息
+
+使用示例：
 
 ```
-@Text(contains = "你")
-@ResponseXml
-public Object textMessage2(XmlMessageRequest message) {
-    XmlTextResponse response = new XmlTextResponse(message);
-    response.setMsgType(WxConstants.XML_MSG_TEXT);
-    response.setContent("该消息关键字为你");
-    return response;
+@Image
+public Object imageMessage(XmlMessageRequest message) {
+    return "success";
 }
 ```
 
-![image-20200812023352469](C:\Users\test\AppData\Roaming\Typora\typora-user-images\image-20200812023352469.png)
-
-- Click(eventKey = "")点击事件，eventKey可以输入菜单的key，可以方便地对不同点击事件进行处理
-
-示例1：
+##### 语音消息
 
 ```
-@Click(eventKey = "KEY_2_1")
-@ResponseXml
-public Object clickEvent2(XmlMessageRequest message) {
-    XmlTextResponse response = new XmlTextResponse(message);
-    response.setMsgType(WxConstants.XML_MSG_TEXT);
-    response.setContent("来自按钮KEY_2_1的点击事件");
-    return response;
+@Voice
+```
+
+##### 视频消息
+
+```
+@Video
+```
+
+##### 小视频消息
+
+```
+@ShortVideo
+```
+
+##### 地理位置消息
+
+```
+@Location
+```
+
+##### 链接消息
+
+```
+@Link
+```
+
+#### 接收事件推送
+
+##### 关注事件
+
+```
+@Subscribe
+```
+
+##### 取消关注事件
+
+```
+@UnSubscribe
+```
+
+##### 扫描带参数二维码事件
+
+```
+@Scan
+```
+
+##### 上报地理位置事件
+
+```
+@EventLocation
+```
+
+##### 点击菜单拉取消息时的事件推送
+
+使用示例：
+
+```
+@Click(eventKey = "key1_1")
+public Object clickEvent(XmlMessageRequest message) {
+    return "success";
 }
 ```
 
-![demo](C:\Users\test\Desktop\demo.png)
+eventKey字段用于匹配不同的click，与自定义菜单接口中KEY值对应
 
-- @Image图片消息
+##### 点击菜单跳转链接时的事件推送
 
-还有其它类似的注解。框架会自动识别微信服务器发来的不同类型的消息，然后匹配合适的方法进行处理。和微信服务器的交互，比如接收消息，回复消息，消息超时排重等，都由框架来处理。用户只需要集中注意力于实际业务处理。还有一个注解@ResponseXml，可以将XmlResponse对象转化为XML格式的字符串，这样可以方便地回复微信服务器。如果不添加该注解，则返回的是对象的toString()方法返回值。
+```
+@View(eventKey = "http://www.baidu.com/")
+@ResponseXml
+public Object viewEvent(XmlMessageRequest message) {
+    return "success";
+}
+```
 
+eventKey字段用于匹配不同的view，与设置的跳转URL对应。

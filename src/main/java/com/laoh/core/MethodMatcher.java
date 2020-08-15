@@ -53,7 +53,7 @@ public class MethodMatcher {
     public Method clickMatcher(Set<Method> methods, XmlMessageRequest message, Class annotation) throws Exception{
         for (Method method : methods) {
             Annotation clickAnnotation = method.getAnnotation(annotation);
-            //获取Text注解上的eventKey字段的值
+            //获取click注解上的eventKey字段的值
             String eventKey = clickAnnotation.annotationType().getMethod("eventKey").invoke(clickAnnotation).toString();
             if (message.getEventKey().equals(eventKey)) {
                 return method;
@@ -61,4 +61,25 @@ public class MethodMatcher {
         }
         return null;
     }
+    /**
+     *
+     * @param methods
+     * @param message
+     * @param annotation
+     * @return
+     * @throws Exception
+     */
+    @Match(msgAction = WxConstants.EVT_VIEW)
+    public Method viewMatcher(Set<Method> methods, XmlMessageRequest message, Class annotation) throws Exception{
+        for (Method method : methods) {
+            Annotation clickAnnotation = method.getAnnotation(annotation);
+            //获取view注解上的eventKey字段的值
+            String eventKey = clickAnnotation.annotationType().getMethod("eventKey").invoke(clickAnnotation).toString();
+            if (message.getEventKey().equals(eventKey)) {
+                return method;
+            }
+        }
+        return null;
+    }
+
 }

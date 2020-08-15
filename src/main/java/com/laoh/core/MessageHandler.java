@@ -1,9 +1,6 @@
 package com.laoh.core;
 
-import com.laoh.core.annotation.Click;
-import com.laoh.core.annotation.MsgHandler;
-import com.laoh.core.annotation.ResponseXml;
-import com.laoh.core.annotation.Text;
+import com.laoh.core.annotation.*;
 import com.laoh.core.entity.xml.XmlMessageRequest;
 import com.laoh.core.entity.xml.XmlTextResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -44,15 +41,17 @@ public class MessageHandler {
         response.setContent("该消息关键字为你");
         return response;
     }
+    @Image
+    public Object imageMessage(XmlMessageRequest message) {
+        return "success";
+    }
     /**
      * eventKey：菜单按钮key
      * @param message
      * @return
      */
-    @Click(eventKey = "KEY_1")
+    @Click(eventKey = "key1_1")
     public Object clickEvent(XmlMessageRequest message) {
-        XmlTextResponse response = new XmlTextResponse(message);
-        log.info("KEY_1");
         return "success";
     }
 
@@ -61,12 +60,32 @@ public class MessageHandler {
      * @param message
      * @return
      */
-    @Click(eventKey = "KEY_2_1")
+    @Click(eventKey = "key1_2")
     @ResponseXml
     public Object clickEvent2(XmlMessageRequest message) {
         XmlTextResponse response = new XmlTextResponse(message);
         response.setMsgType(WxConstants.XML_MSG_TEXT);
-        response.setContent("来自按钮KEY_2_1的点击事件");
+        response.setContent("来自按钮key1_2的点击事件");
         return response;
+    }
+    @Voice
+    @ResponseXml
+    public Object voice(XmlMessageRequest message) {
+        XmlTextResponse response = new XmlTextResponse(message);
+        response.setMsgType(WxConstants.XML_MSG_TEXT);
+        response.setContent("语音消息内容"+message.getRecognition());
+        return response;
+    }
+
+    @View(eventKey = "http://www.baidu.com/")
+    @ResponseXml
+    public Object viewEvent(XmlMessageRequest message) {
+        return "success";
+    }
+
+    @View(eventKey = "https://www.bilibili.com/")
+    @ResponseXml
+    public Object viewEvent2(XmlMessageRequest message) {
+        return "success";
     }
 }

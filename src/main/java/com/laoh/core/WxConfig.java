@@ -128,7 +128,7 @@ public class WxConfig {
      * @param accessToken
      * @param expiresInSeconds
      */
-    public void updateAccessToken(String accessToken, int expiresInSeconds) {
+    private void updateAccessToken(String accessToken, int expiresInSeconds) {
         this.accessToken = accessToken;
         this.expiresTime = System.currentTimeMillis() + (expiresInSeconds - 200) * 1000L;
     }

@@ -1,53 +1,47 @@
 package com.laoh;
 
 
+import java.util.ArrayList;
+import java.util.Collections;
+
+class TreeNode {
+    int val = 0;
+    TreeNode left = null;
+    TreeNode right = null;
+
+    public TreeNode(int val) {
+        this.val = val;
+
+    }
+
+}
 public class Solution {
 
-    int index;
-    public class TreeNode {
-        int val = 0;
-        TreeNode left = null;
-        TreeNode right = null;
+    ArrayList<ArrayList<Integer>> res = new ArrayList<>();
+    ArrayList<ArrayList<Integer>> Print(TreeNode pRoot) {
+        helper(0, pRoot);
+        ArrayList<ArrayList<Integer>> ans = new ArrayList();
+        for (int i = 0; i < res.size(); i++) {
+            if (i % 2 == 1) {
+                Collections.reverse(res.get(i));
 
-        public TreeNode(int val) {
-            this.val = val;
+            }
+            ans.add(res.get(i));
+        }
+        return ans;
+    }
+    void helper(int level, TreeNode node) {
+        if (node == null) {
+            return;
+        }
+        if (level >= res.size()) {
+            ArrayList<Integer> list = new ArrayList<>();
+            res.add(list);
+        }
+        res.get(level).add(node.val);
+        helper(level + 1, node.left);
+        helper(level + 1, node.right);
+    }
 
-        }
 
-    }
-    String Serialize(TreeNode root) {
-        StringBuilder sb = new StringBuilder();
-        preOrder(root, sb);
-        return sb.toString();
-    }
-    void preOrder(TreeNode root, StringBuilder sb) {
-        if (root == null) {
-            sb.append("#");
-        }
-        sb.append(root.val+"!");
-        preOrder(root.left, sb);
-        preOrder(root.right, sb);
-    }
-    TreeNode Deserialize(String str) {
-        index = 0;
-        TreeNode node = deser(str);
-        index = 0;
-        return node;
-    }
-    TreeNode deser(String str) {
-        if (str.charAt(index) == '#') {
-            index++;
-            return null;
-        }
-        String s = "";
-        while (str.charAt(index) != '!') {
-            s += str.charAt(index);
-            index++;
-        }
-        index++;
-        TreeNode node = new TreeNode(Integer.valueOf(s));
-        node.left = deser(str);
-        node.right = deser(str);
-        return node;
-    }
 }

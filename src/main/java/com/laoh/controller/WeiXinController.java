@@ -3,15 +3,10 @@ package com.laoh.controller;
 import com.laoh.core.IService;
 import com.laoh.core.dao.WxMessageStatusDao;
 import com.laoh.core.entity.xml.XmlMessageRequest;
-import com.laoh.utils.SignUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
 
 
 /**
@@ -28,33 +23,21 @@ public class WeiXinController {
 
     /**
      * 接入认证
-     * @param request
-     * @param response
      * @param signature
      * @param timestamp
      * @param nonce
      * @param echostr
      */
     @GetMapping("/weixin")
-    public void checkSinnature(HttpServletRequest request,
-                       HttpServletResponse response,
-                       @RequestParam(value = "signature", required = true) String signature,
-                       @RequestParam(value = "timestamp", required = true) String timestamp,
-                       @RequestParam(value = "nonce", required = true) String nonce,
-                       @RequestParam(value = "echostr", required = true) String echostr) {
-        String token = "laohwx";
-        try {
-            if (SignUtil.checkSignature(signature, timestamp, nonce, token)) {
-                PrintWriter out = response.getWriter();
-                out.print(echostr);
-                out.close();
-            } else {
-                log.info("这里存在非法请求！");
-            }
-        } catch (Exception e) {
-            log.error("出错");
-        }
+    @ResponseBody
+    public String checkSinnature(
+                       @RequestParam(value = "signature") String signature,
+                       @RequestParam(value = "timestamp") String timestamp,
+                       @RequestParam(value = "nonce") String nonce,
+                       @RequestParam(value = "echostr") String echostr) {
+        return iService.checkSignature(signature, timestamp, nonce, echostr);
     }
+
     @RequestMapping(value="/weixin",method=RequestMethod.POST)
     @ResponseBody
     public String handlerMessage(@RequestBody XmlMessageRequest message){
