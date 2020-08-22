@@ -2,7 +2,7 @@
 
 [toc]
 
-简洁：使用此框架可以在进行微信公众号开发时避免编写许多重复的代码。
+简介：使用此框架可以在进行微信公众号开发时避免编写许多重复的代码。
 
 主要功能有：1、微信接入认证，2、access token生命周期管理，3、利用注解简单快速地实现微信消息管理，4、利用redis实现微信消息重试排重，5、自定义菜单相关api实现，6、素材管理相关api实现
 
@@ -340,5 +340,4 @@ try {
 String resultString = iService.uploadMaterial(WxMediaType.VIDEO,path,title,introduction);
 ```
 
-### 获取永久素材
-
+未完待续...
