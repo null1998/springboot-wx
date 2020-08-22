@@ -1,4 +1,4 @@
-package com.laoh.utils;
+package com.laoh.core.utils;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;

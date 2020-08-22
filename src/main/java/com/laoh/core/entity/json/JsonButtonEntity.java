@@ -1,6 +1,7 @@
 package com.laoh.core.entity.json;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import java.util.List;
  * @author hyd
  * @date 2020/7/19 16:17
  */
+@Accessors(chain = true)
 @Data
 public class JsonButtonEntity {
     /**

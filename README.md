@@ -2,6 +2,10 @@
 
 [toc]
 
+简洁：使用此框架可以在进行微信公众号开发时避免编写许多重复的代码。
+
+主要功能有：1、微信接入认证，2、access token生命周期管理，3、利用注解简单快速地实现微信消息管理，4、利用redis实现微信消息重试排重，5、自定义菜单相关api实现，6、素材管理相关api实现
+
 ## 一、开始开发
 
 ### 接入微信公众平台开发
@@ -68,52 +72,36 @@ List<Object> adip =  wxService.getApiDomainIp();
 
 [多种类型按钮详见](https://developers.weixin.qq.com/doc/offiaccount/Custom_Menus/Creating_Custom-Defined_Menu.html)
 
+使用了链式编程，可以方便地定义一二级菜单
+
 使用示例：
 
 ```
-//生成一个2*2的菜单
-//一级菜单
-JsonButtonEntity button1 = new JsonButtonEntity();
-button1.setName("点击");
-List<JsonButtonEntity> sub_button1 = new LinkedList<>();
-//二级菜单
-JsonButtonEntity button1_1 = new JsonButtonEntity();
-button1_1.setName("点击1");
-button1_1.setType("click");
-button1_1.setKey("key1_1");
-sub_button1.add(button1_1);
-//二级菜单
-JsonButtonEntity button1_2 = new JsonButtonEntity();
-button1_2.setName("点击2");
-button1_2.setType("click");
-button1_2.setKey("key1_2");
-sub_button1.add(button1_2);
-button1.setSub_button(sub_button1);
-
-
-//一级菜单
-JsonButtonEntity button2 = new JsonButtonEntity();
-button2.setName("链接");
-List<JsonButtonEntity> sub_button2 = new LinkedList<>();
-//二级菜单
-JsonButtonEntity button2_1 = new JsonButtonEntity();
-button2_1.setName("百度");
-button2_1.setType("view");
-button2_1.setUrl("http://www.baidu.com/");
-sub_button2.add(button2_1);
-//二级菜单
-JsonButtonEntity button2_2 = new JsonButtonEntity();
-button2_2.setName("哔哩哔哩");
-button2_2.setType("view");
-button2_2.setUrl("https://www.bilibili.com/");
-sub_button2.add(button2_2);
-button2.setSub_button(sub_button2);
-
-//整合所有一级菜单
 List<JsonButtonEntity> buttons = new ArrayList<>();
-buttons.add(button1);
-buttons.add(button2);
-//调用创建菜单接口
+
+List<JsonButtonEntity> sub_button1 = new LinkedList<>();
+sub_button1.add(new JsonButtonEntity()
+        .setName("点击1")
+        .setType("click")
+        .setKey("key1_1"));
+sub_button1.add(new JsonButtonEntity()
+        .setName("点击2")
+        .setType("click")
+        .setKey("key1_2"));
+buttons.add(new JsonButtonEntity()
+        .setName("点击").setSub_button(sub_button1));
+
+List<JsonButtonEntity> sub_button2 = new LinkedList<>();
+sub_button2.add(new JsonButtonEntity()
+       .setName("百度")
+       .setType("view")
+       .setUrl("http://www.baidu.com/"));
+sub_button2.add(new JsonButtonEntity()
+        .setName("哔哩哔哩")
+        .setType("view")
+        .setUrl("https://www.bilibili.com/"));
+buttons.add(new JsonButtonEntity()
+        .setName("链接").setSub_button(sub_button2));
 wxService.menuCreate(buttons);
 ```
 
@@ -265,3 +253,92 @@ public Object viewEvent(XmlMessageRequest message) {
 ```
 
 eventKey字段用于匹配不同的view，与设置的跳转URL对应。
+
+#### 利用redis实现消息排重原理
+
+[微信消息重试相关说明](https://developers.weixin.qq.com/doc/offiaccount/Message_Management/Receiving_standard_messages.html)
+
+首先使用一个类代表消息，MsgId作为普通消息的key，FromUserName和CreateTime作为事件消息的key。
+
+```
+@Data
+@AllArgsConstructor
+public class DuplicateRemovalMessage implements Serializable {
+
+    private static final long serialVersionUID = -2076253696811811906L;
+
+    private Long MsgId;
+    
+    private String FromUserName;
+    
+    private String CreateTime;
+
+}
+```
+
+接收到消息后，查看redis中是否有已经有该消息对象。如果没有，则说明是第一次请求，创建对象存入redis，并设置对象生存时间为15秒，然后进行任务处理，任务结束后把结果存入全局变量中。如果已经有消息对象，不进行任务处理，尝试从一个全局变量中获取结果即可。
+
+## 四、素材管理
+
+### 新增临时素材
+
+支持图片语音视频和缩略图
+
+使用示例：
+
+```
+String media_id = iService.uploadTempMaterial(WxMediaType.IMAGE, filePath);
+```
+
+### 获取临时素材
+
+#### 图片素材
+
+使用示例：
+
+```
+ResponseEntity<byte[]>entity = iService.downloadTempImage(media_id);
+try {
+    FileOutputStream fileOutputStream = new FileOutputStream(imagePath);
+    fileOutputStream.write(entity.getBody());
+    fileOutputStream.close();
+} catch (Exception e) {
+    e.printStackTrace();
+}
+```
+
+#### 视频素材
+
+使用示例：
+
+```
+String url = iService.downloadTempVideo(media_id);
+```
+
+#### 语音素材
+
+使用示例：
+
+```
+ResponseEntity<byte[]>entity = iService.downloadTempVoice(media_id);
+try {
+    FileOutputStream fileOutputStream = new FileOutputStream(voicePath);
+    fileOutputStream.write(entity.getBody());
+    fileOutputStream.close();
+} catch (Exception e) {
+    e.printStackTrace();
+}
+```
+
+### 新增永久素材
+
+支持图片语音和视频（视频要求title和introduction），返回值为json字符串。
+
+使用示例：
+
+```
+String resultString = iService.uploadMaterial(WxMediaType.VIDEO,path,title,introduction);
+```
+
+### 获取永久素材
+

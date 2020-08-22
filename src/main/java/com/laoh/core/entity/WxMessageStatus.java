@@ -1,11 +1,11 @@
 package com.laoh.core.entity;
 
-import com.laoh.core.entity.xml.XmlResponse;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
 /**
+ * 暂时不用
  * @author hyd
  * @date 2020/8/9 10:41
  */
@@ -13,9 +13,13 @@ import lombok.ToString;
 @Getter
 @Setter
 public class WxMessageStatus{
-    private Integer id;
-    private String mkey;
-    private String status;
-    private XmlResponse result;
     private Integer requestCount;
+    private String status;
+    private String result;
+
+    public WxMessageStatus(Integer requestCount, String status, String result) {
+        this.requestCount = requestCount;
+        this.status = status;
+        this.result = result;
+    }
 }

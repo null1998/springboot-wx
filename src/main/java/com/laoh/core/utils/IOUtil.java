@@ -1,4 +1,4 @@
-package com.laoh.utils;
+package com.laoh.core.utils;
 
 import java.io.*;
 

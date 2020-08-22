@@ -1,9 +1,9 @@
 package com.laoh.core;
 
-import com.laoh.Main;
+
 import com.laoh.core.annotation.Msg;
 import com.laoh.core.annotation.MsgHandler;
-import com.laoh.utils.ClassScanner;
+import com.laoh.core.utils.ClassScanner;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -39,7 +39,7 @@ public class WxApplication implements ApplicationRunner {
     public void scanHandler() throws URISyntaxException {
         WxConfig wxConfig = WxConfig.getInstance();
         String packageName = wxConfig.getPackageName();
-        URL url = Main.class.getClassLoader().getResource("");
+        URL url = getClass().getClassLoader().getResource("");
         String classPath = url.toURI().getPath();
         ClassScanner classScanner = new ClassScanner(classPath);
         classScanner.addFilter(new ClassFilter() {
@@ -73,7 +73,7 @@ public class WxApplication implements ApplicationRunner {
     public void scanAnnotation() throws Exception {
         Map<String, Class<?>> map = new HashMap<>();
         Set<Class<?>> set = new HashSet<>();
-        URL url = Main.class.getClassLoader().getResource("");
+        URL url = getClass().getClassLoader().getResource("");
         String classPath = url.toURI().getPath();
         String packageName = "com.laoh.core.annotation";
         File file = new File(classPath+packageName.replace(".","/"));

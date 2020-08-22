@@ -6,6 +6,14 @@ package com.laoh.core;
  * @date 2020/7/23 18:21
  */
 public class WxConstants {
+
+    public static final String SHA_1 = "SHA-1";
+    public static final String IP_LIST = "ip_list";
+    public static final String ERRCODE = "errcode";
+    public static final String BUTTON = "button";
+    public static final String MEDIA = "media";
+    public static final String MEDIA_ID = "media_id";
+    public static final String ATTACHMENT = "attachment";
     /**
      * 微信XML数据包中MsgType字段的所有值
      */
@@ -45,6 +53,15 @@ public class WxConstants {
     public static final String EVT_VERIFY_EXPIRED = "verify_expired";
     public static final String EVENT_KEY = "EventKey";
 
+    public static final String MEDIA_TYPE_IMAGE = "image";
+    public static final String MEDIA_TYPE_VOICE = "voice";
+    public static final String MEDIA_TYPE_VIDEO = "video";
+    public static final String MEDIA_TYPE_THUMB = "thumb";
+
+    public static final String VOICE_COUNT = "voice_count";
+    public static final String VIDEO_COUNT = "video_count";
+    public static final String IMAGE_COUNT = "image_count";
+    public static final String NEWS_COUNT = "news_count";
 
     public static final String URL_GET_ACCESSTOEKN = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=APPID&secret=APPSECRET";
     public static final String URL_GET_API_DOMAIN_IP = "https://api.weixin.qq.com/cgi-bin/get_api_domain_ip?access_token=ACCESS_TOKEN";
@@ -59,7 +76,7 @@ public class WxConstants {
 
     public static final String URL_UPLOAD_TEMP_MEDIA = "https://api.weixin.qq.com/cgi-bin/media/upload?access_token=ACCESS_TOKEN&type=TYPE";
     public static final String URL_DOWNLOAD_TEMP_MEDIA = "https://api.weixin.qq.com/cgi-bin/media/get?access_token=ACCESS_TOKEN&media_id=MEDIA_ID";
-    public static final String URL_UPLOAD_MATERIAL_MEDIA = "https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=ACCESS_TOKEN";
+    public static final String URL_UPLOAD_MATERIAL_MEDIA = "https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=ACCESS_TOKEN&type=TYPE";
     public static final String URL_BATCHGET_MATERIAL_MEDIA_LIST = "https://api.weixin.qq.com/cgi-bin/material/batchget_material?access_token=ACCESS_TOKEN";
     public static final String URL_DOWNLOAD_MATERIAL_MEDIA = "https://api.weixin.qq.com/cgi-bin/material/get_material?access_token=ACCESS_TOKEN";
     public static final String URL_DELETE_MATERIAL_MEDIA = "https://api.weixin.qq.com/cgi-bin/material/del_material?access_token=ACCESS_TOKEN";
@@ -118,4 +135,7 @@ public class WxConstants {
     public static final String URL_KF_SEND_MESSAGE_TO_USER = "https://api.weixin.qq.com/cgi-bin/message/custom/send?access_token=ACCESS_TOKEN";
     public static final String URL_KF_SEND_TYPING_TO_USER = "https://api.weixin.qq.com/cgi-bin/message/custom/typing?access_token=ACCESS_TOKEN";
 
+    public static final String URL_PARAMTER_ACCESS_TOKEN = "ACCESS_TOKEN";
+    public static final String URL_PARAMTER_MEDIA_ID = "MEDIA_ID";
+    public static final String URL_PARAMTER_TYPE = "TYPE";
 }

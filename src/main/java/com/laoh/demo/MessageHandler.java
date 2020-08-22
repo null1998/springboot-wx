@@ -1,12 +1,13 @@
-package com.laoh.core;
+package com.laoh.demo;
 
+import com.laoh.core.WxConstants;
 import com.laoh.core.annotation.*;
 import com.laoh.core.entity.xml.XmlMessageRequest;
 import com.laoh.core.entity.xml.XmlTextResponse;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 消息处理类
+ * 消息处理类示例
  * @author hyd
  * @date 2020/8/6 9:28
  */
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 public class MessageHandler {
     /**
      * 执行文本消息的方法
-     *
      * @param message
      * @return
      */

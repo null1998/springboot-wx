@@ -1,14 +1,16 @@
 package com.laoh;
 
 import com.laoh.core.IService;
-
 import com.laoh.core.WxConfig;
+import com.laoh.core.WxMediaType;
 import com.laoh.core.WxService;
 import com.laoh.core.entity.json.JsonButtonEntity;
-import com.laoh.utils.IOUtil;
+import com.laoh.core.utils.IOUtil;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.ResponseEntity;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.*;
 
 /**
@@ -23,47 +25,33 @@ public class WXTest {
 
     @Test
     void menuCreateTest() {
-        //一级菜单
-        JsonButtonEntity button1 = new JsonButtonEntity();
-        button1.setName("点击");
-        List<JsonButtonEntity> sub_button1 = new LinkedList<>();
-        //二级菜单
-        JsonButtonEntity button1_1 = new JsonButtonEntity();
-        button1_1.setName("点击1");
-        button1_1.setType("click");
-        button1_1.setKey("key1_1");
-        sub_button1.add(button1_1);
-        JsonButtonEntity button1_2 = new JsonButtonEntity();
-        button1_2.setName("点击2");
-        button1_2.setType("click");
-        button1_2.setKey("key1_2");
-        sub_button1.add(button1_2);
-        button1.setSub_button(sub_button1);
-
-
-        //一级菜单
-        JsonButtonEntity button2 = new JsonButtonEntity();
-        button2.setName("链接");
-        List<JsonButtonEntity> sub_button2 = new LinkedList<>();
-        //二级菜单
-        JsonButtonEntity button2_1 = new JsonButtonEntity();
-        button2_1.setName("百度");
-        button2_1.setType("view");
-        button2_1.setUrl("http://www.baidu.com/");
-        sub_button2.add(button2_1);
-        JsonButtonEntity button2_2 = new JsonButtonEntity();
-        button2_2.setName("哔哩哔哩");
-        button2_2.setType("view");
-        button2_2.setUrl("https://www.bilibili.com/");
-        sub_button2.add(button2_2);
-        button2.setSub_button(sub_button2);
-
-        //整合所有一级菜单
         List<JsonButtonEntity> buttons = new ArrayList<>();
-        buttons.add(button1);
-        buttons.add(button2);
+
+        List<JsonButtonEntity> sub_button1 = new LinkedList<>();
+        sub_button1.add(new JsonButtonEntity()
+                .setName("点击1")
+                .setType("click")
+                .setKey("key1_1"));
+        sub_button1.add(new JsonButtonEntity()
+                .setName("点击2")
+                .setType("click")
+                .setKey("key1_2"));
+        buttons.add(new JsonButtonEntity()
+                .setName("点击").setSub_button(sub_button1));
+
+        List<JsonButtonEntity> sub_button2 = new LinkedList<>();
+        sub_button2.add(new JsonButtonEntity()
+               .setName("百度")
+               .setType("view")
+               .setUrl("http://www.baidu.com/"));
+        sub_button2.add(new JsonButtonEntity()
+                .setName("哔哩哔哩")
+                .setType("view")
+                .setUrl("https://www.bilibili.com/"));
+        buttons.add(new JsonButtonEntity()
+                .setName("链接").setSub_button(sub_button2));
         wxService.menuCreate(buttons);
-        System.out.println();
+
     }
     @Test
     void menuQueryTest() {
@@ -99,6 +87,22 @@ public class WXTest {
             System.out.println(i);
         }
 
+    }
+    @Test
+    void uploadMaterialTest() {
+        String media  = wxService.uploadMaterial(WxMediaType.IMAGE, "C:\\Users\\test\\material\\card.png","","");
+        System.out.println(media);
+    }
+    @Test
+    void downloadMaterialTest() {
+        ResponseEntity<byte[]> responseEntity = wxService.downloadMaterial("sMX4aUP6bkedcm0XoxrYQYnf6JXhOCHdns-ZRBv1hSc");
+        try {
+            FileOutputStream fileOutputStream = new FileOutputStream("C:\\Users\\test\\m1.jpg");
+            fileOutputStream.write(responseEntity.getBody());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println();
     }
 
 }

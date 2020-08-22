@@ -1,25 +1,37 @@
 package com.laoh.core;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laoh.core.annotation.Match;
 import com.laoh.core.annotation.ResponseXml;
 import com.laoh.core.dao.WxMessageStatusDao;
-import com.laoh.core.entity.WxMessageStatus;
+import com.laoh.core.entity.DuplicateRemovalMessage;
 import com.laoh.core.entity.json.JsonButtonEntity;
 import com.laoh.core.entity.xml.XmlMessageRequest;
 import com.laoh.core.entity.xml.XmlResponse;
 import com.laoh.core.exception.WxException;
-import com.laoh.utils.HttpClientUtil;
-import com.laoh.utils.JaxbUtil;
+import com.laoh.core.utils.HttpClientUtil;
+import com.laoh.core.utils.JaxbUtil;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Method;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author hyd
@@ -28,6 +40,11 @@ import java.util.*;
 @Slf4j
 @Component
 public class WxService implements IService{
+
+    RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    RedisTemplate redisTemplate;
+
     @Autowired
     WxMessageStatusDao wxMessageStatusDao;
 
@@ -53,7 +70,7 @@ public class WxService implements IService{
         String tmpStr = null;
 
         try {
-            md = MessageDigest.getInstance("SHA-1");
+            md = MessageDigest.getInstance(WxConstants.SHA_1);
             // 将三个参数字符串拼接成一个字符串进行 sha1 加密
             byte[] digest = md.digest(content.toString().getBytes());
             tmpStr = byteToStr(digest);
@@ -100,20 +117,20 @@ public class WxService implements IService{
     @Override
     public List<Object> getCallBackIp() {
         String accessToken = WxConfig.getInstance().takeAccessToken();
-        String url = WxConstants.URL_GET_CALL_BACK_IP.replace("ACCESS_TOKEN", accessToken);
+        String url = WxConstants.URL_GET_CALL_BACK_IP.replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken);
         HttpClientUtil.HttpClientResult  result = HttpClientUtil.doGet(url);
         JSONObject jsonObject = new JSONObject(result.getContent());
-        List<Object> ipList = jsonObject.getJSONArray("ip_list").toList();
+        List<Object> ipList = jsonObject.getJSONArray(WxConstants.IP_LIST).toList();
         return ipList;
     }
 
     @Override
     public List<Object> getApiDomainIp() {
         String accessToken = WxConfig.getInstance().takeAccessToken();
-        String url = WxConstants.URL_GET_API_DOMAIN_IP.replace("ACCESS_TOKEN", accessToken);
+        String url = WxConstants.URL_GET_API_DOMAIN_IP.replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken);
         HttpClientUtil.HttpClientResult  result = HttpClientUtil.doGet(url);
         JSONObject jsonObject = new JSONObject(result.getContent());
-        List<Object> ipList = jsonObject.getJSONArray("ip_list").toList();
+        List<Object> ipList = jsonObject.getJSONArray(WxConstants.IP_LIST).toList();
         return ipList;
     }
 
@@ -125,13 +142,13 @@ public class WxService implements IService{
     @Override
     public boolean menuCreate(List<JsonButtonEntity> buttons) {
         String accessToken = WxConfig.getInstance().takeAccessToken();
-        String url = WxConstants.URL_CREATE_MENU.replace("ACCESS_TOKEN", accessToken);
+        String url = WxConstants.URL_CREATE_MENU.replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken);
         Map<String, Object> entityMap = new HashMap<>();
-        entityMap.put("button",buttons);
+        entityMap.put(WxConstants.BUTTON,buttons);
         HttpClientUtil.HttpClientResult  result = HttpClientUtil.doPost(url,null,entityMap);
         log.info("创建自定义菜单："+result.getContent());
         JSONObject jsonObject = new JSONObject(result.getContent());
-        return Integer.parseInt(jsonObject.get("errcode").toString()) == 0;
+        return Integer.parseInt(jsonObject.get(WxConstants.ERRCODE).toString()) == 0;
     }
 
     /**
@@ -140,7 +157,7 @@ public class WxService implements IService{
     @Override
     public String menuQuery() {
         String accessToken = WxConfig.getInstance().takeAccessToken();
-        String url = WxConstants.URL_GET_CURRENT_MENU_INFO.replace("ACCESS_TOKEN", accessToken);
+        String url = WxConstants.URL_GET_CURRENT_MENU_INFO.replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken);
         HttpClientUtil.HttpClientResult  result = HttpClientUtil.doGet(url);
         log.info("查询当前菜单配置："+result.getContent());
         return result.getContent();
@@ -153,11 +170,11 @@ public class WxService implements IService{
     @Override
     public boolean menuDelete() {
         String accessToken = WxConfig.getInstance().takeAccessToken();
-        String url = WxConstants.URL_DELETE_MENU.replace("ACCESS_TOKEN", accessToken);
+        String url = WxConstants.URL_DELETE_MENU.replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken);
         HttpClientUtil.HttpClientResult  result = HttpClientUtil.doGet(url);
         log.info("删除菜单");
         JSONObject jsonObject = new JSONObject(result.getContent());
-        return Integer.parseInt(jsonObject.get("errcode").toString()) == 0;
+        return Integer.parseInt(jsonObject.get(WxConstants.ERRCODE).toString()) == 0;
     }
 
     /**
@@ -181,28 +198,39 @@ public class WxService implements IService{
             msgAction = message.getMsgType();
             msgKey = String.valueOf(message.getMsgId());
         }
-        WxMessageStatus wxMessageStatus = wxMessageStatusDao.selectWxMessageStatus(msgKey);
-        WxConfig wxConfig = WxConfig.getInstance();
-        //利用msgAction找出对应的注解，例如msgAction为CLICK,则对应注解为Click.class
-        Class annotation= wxConfig.getMsgActionMap().get(msgAction);
-        //将所有包含特定注解的方法从map中取出来
-        HashSet<Method> methods = wxConfig.getAnnotationMethodsMap().get(annotation);
-        Method matchMethod = bestMatch(methods, message, msgAction, annotation);
-        if (matchMethod == null) {
-            throw new WxException("没有处理消息"+message+"的方法");
-        }
-        Object response = matchMethod.invoke(matchMethod.getDeclaringClass().newInstance(), message);
-        if (matchMethod.isAnnotationPresent(ResponseXml.class)) {
-            if (response instanceof XmlResponse) {
-                String s = JaxbUtil.toXml(response);
-                log.info(s);
-                return s;
+        ValueOperations<String, DuplicateRemovalMessage> operations = redisTemplate.opsForValue();
+        if (operations.get(msgKey) == null) {
+            operations.set(msgKey, new DuplicateRemovalMessage(message.getMsgId(),message.getFromUserName(),message.getToUserName()),15, TimeUnit.SECONDS);
+            WxConfig wxConfig = WxConfig.getInstance();
+            //利用msgAction找出对应的注解，例如msgAction为CLICK,则对应注解为Click.class
+            Class annotation= wxConfig.getMsgActionMap().get(msgAction);
+            //将所有包含特定注解的方法从map中取出来
+            HashSet<Method> methods = wxConfig.getAnnotationMethodsMap().get(annotation);
+            Method matchMethod = bestMatch(methods, message, msgAction, annotation);
+            if (matchMethod == null) {
+                throw new WxException("没有处理消息"+message+"的方法");
+            }
+            log.info("开启异步任务");
+            Object response = matchMethod.invoke(matchMethod.getDeclaringClass().newInstance(), message);
+            String result = null;
+            if (matchMethod.isAnnotationPresent(ResponseXml.class)) {
+                if (response instanceof XmlResponse) {
+                    result = JaxbUtil.toXml(response);
+                } else {
+                    throw new WxException("不是XmlResponse子类，无法转化为xml");
+                }
             } else {
-                throw new WxException("不是XmlResponse子类，无法转化为xml");
+                result = response.toString();
+            }
+            WxConfig.getInstance().getMessageResult().put(msgKey, result);
+            return result;
+        } else {
+            while(true) {
+                if (WxConfig.getInstance().getMessageResult().get(msgKey) != null) {
+                    return WxConfig.getInstance().getMessageResult().get(msgKey);
+                }
             }
         }
-        log.info(response.toString());
-        return response.toString();
 
     }
 
@@ -235,18 +263,175 @@ public class WxService implements IService{
     }
 
     /**
+     * 图片10xRcLjvTPrldtgUSJeeS4S_X-iMXMCK52OBt_lFeUMzLpfiRdaB3PLVg9NDGtVp
+     * 语音OTzhzjqg8vhnGdyUcrIktzoPVFizYUh1CRx3XmzfB8H7KrKOpRYRux2wnPDgy53d
+     * 视频1Clzh7BjYvGM1MVINrBqt9Vc-684YLgZOT77snb3w7uu_DrQyXYoQkiDjIXBbV6L
      * 将临时素材用post form-data/multipart方式上传
      * @param type 媒体文件类型
      * @param path 媒体文件路径
      */
     @Override
-    public void uploadTempMedia(String type, String path) {
+    public String uploadTempMaterial(WxMediaType type, String path) {
         String accessToken = WxConfig.getInstance().takeAccessToken();
         String url = WxConstants.URL_UPLOAD_TEMP_MEDIA.
-                replace("ACCESS_TOKEN", accessToken)
-                .replace("TYPE",type);
-        HttpClientUtil.HttpClientResult  result = HttpClientUtil.doPostMultipart(url, path);
-        System.out.println(result);
+                replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken)
+                .replace(WxConstants.URL_PARAMTER_TYPE,type.getName());
+
+        MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
+        FileSystemResource fileSystemResource = new FileSystemResource(path);
+        form.add(WxConstants.MEDIA, fileSystemResource);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<MultiValueMap<String, Object>> data = new HttpEntity<>(form, headers);
+        try{
+            String resultString = restTemplate.postForObject(url, data, String.class);
+            if(!StringUtils.isEmpty(resultString)){
+                JSONObject jsonObject = new JSONObject(resultString);
+                return jsonObject.getString(WxConstants.MEDIA_ID);
+            }
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+        return null;
     }
+
+    @Override
+    public ResponseEntity<byte[]> downloadTempImage(String media_id) {
+        String accessToken = WxConfig.getInstance().takeAccessToken();
+        String url = WxConstants.URL_DOWNLOAD_TEMP_MEDIA.
+                replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken)
+                .replace(WxConstants.URL_PARAMTER_MEDIA_ID,media_id);
+        String fileName = media_id+ ".jpg";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData(WxConstants.ATTACHMENT, fileName);
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(headers);
+        ResponseEntity<byte[]> responseEntity = restTemplate.exchange(url,HttpMethod.GET,httpEntity,byte[].class);
+        return responseEntity;
+    }
+
+    @Override
+    public String downloadTempVideo(String media_id) {
+        String accessToken = WxConfig.getInstance().takeAccessToken();
+        String url = WxConstants.URL_DOWNLOAD_TEMP_MEDIA.
+                replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken)
+                .replace(WxConstants.URL_PARAMTER_MEDIA_ID,media_id);
+        String responseString = restTemplate.getForObject(url,String.class);
+        return responseString;
+    }
+
+    @Override
+    public ResponseEntity<byte[]> downloadTempVoice(String media_id) {
+        String accessToken = WxConfig.getInstance().takeAccessToken();
+        String url = WxConstants.URL_DOWNLOAD_TEMP_MEDIA.
+                replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken)
+                .replace(WxConstants.URL_PARAMTER_MEDIA_ID,media_id);
+        String fileName = media_id+ ".mp3";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentDispositionFormData(WxConstants.ATTACHMENT, fileName);
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(headers);
+        ResponseEntity<byte[]> responseEntity = restTemplate.exchange(url,HttpMethod.GET,httpEntity,byte[].class);
+        return responseEntity;
+    }
+
+    /**
+     * 图片sMX4aUP6bkedcm0XoxrYQYnf6JXhOCHdns-ZRBv1hSc
+     * 语音sMX4aUP6bkedcm0XoxrYQYjXjC-THTG59P-ZRB_pESM
+     * 视频
+     * @param type
+     * @param path
+     * @param title
+     * @param introduction
+     * @return
+     */
+    @Override
+    public String uploadMaterial(WxMediaType type, String path, String title, String introduction) {
+        String accessToken = WxConfig.getInstance().takeAccessToken();
+        if (accessToken != null) {
+            String url = WxConstants.URL_UPLOAD_MATERIAL_MEDIA.replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken)
+                    .replace(WxConstants.URL_PARAMTER_TYPE, type.getName());
+
+            //设置请求体，注意是LinkedMultiValueMap
+            MultiValueMap<String, Object> data = new LinkedMultiValueMap<>();
+            if(WxConstants.MEDIA_TYPE_VIDEO.equalsIgnoreCase(type.getName())){
+                if(!StringUtils.isEmpty(title) && !StringUtils.isEmpty(introduction)){
+                    HashMap<String, String> map = new HashMap<>();
+                    map.put("title", title);
+                    map.put("introduction", introduction);
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+                    String jsonString = null;
+                    try {
+                        jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(map);
+                    } catch (JsonProcessingException e) {
+                        e.printStackTrace();
+                    }
+                    data.add("description", jsonString);
+                }
+            }
+
+            //设置上传文件
+            FileSystemResource fileSystemResource = new FileSystemResource(path);
+            data.add(WxConstants.MEDIA, fileSystemResource);
+
+            //上传文件,设置请求头
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+            httpHeaders.setContentLength(fileSystemResource.getFile().length());
+
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<MultiValueMap<String, Object>>(data,
+                    httpHeaders);
+            try{
+                String resultString = restTemplate.postForObject(url, requestEntity, String.class);
+                return resultString;
+            }catch (Exception e){
+                log.error(e.getMessage());
+            }
+        }
+        return null;
+    }
+
+
+    @Override
+    public ResponseEntity<byte[]> downloadMaterial(String media_id) {
+        String accessToken = WxConfig.getInstance().takeAccessToken();
+        String url = WxConstants.URL_DOWNLOAD_MATERIAL_MEDIA.
+                replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken);
+        MultiValueMap<String, Object> data = new LinkedMultiValueMap<>();
+        data.add(WxConstants.MEDIA_ID, media_id);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setContentDispositionFormData(WxConstants.ATTACHMENT, "s.jpg");
+        HttpEntity<MultiValueMap<String, Object>> httpEntity = new HttpEntity<>(data, headers);
+        ResponseEntity<byte[]> responseEntity = restTemplate.exchange(url,HttpMethod.POST,httpEntity,byte[].class);
+        return responseEntity;
+    }
+
+    @Override
+    public boolean deleteMaterial(String media_id) {
+        return false;
+    }
+
+    @Override
+    public Map<String, Integer> getMaterialCount() {
+        String accessToken = WxConfig.getInstance().takeAccessToken();
+        String url = WxConstants.URL_GET_MATERIAL_COUNT.replace(WxConstants.URL_PARAMTER_ACCESS_TOKEN, accessToken);
+        HttpClientUtil.HttpClientResult  result = HttpClientUtil.doGet(url);
+        JSONObject jsonObject = new JSONObject(result.getContent());
+        Map<String, Integer> map = new HashMap<>();
+        map.put(WxConstants.VOICE_COUNT,jsonObject.getInt(WxConstants.VOICE_COUNT));
+        map.put(WxConstants.VIDEO_COUNT,jsonObject.getInt(WxConstants.VIDEO_COUNT));
+        map.put(WxConstants.IMAGE_COUNT,jsonObject.getInt(WxConstants.IMAGE_COUNT));
+        map.put(WxConstants.NEWS_COUNT,jsonObject.getInt(WxConstants.NEWS_COUNT));
+        log.info(map.toString());
+        return map;
+    }
+
+    @Override
+    public void batchGetMaterial() {
+
+    }
+
 
 }

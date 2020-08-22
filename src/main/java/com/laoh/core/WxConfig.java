@@ -1,6 +1,6 @@
 package com.laoh.core;
 
-import com.laoh.utils.HttpClientUtil;
+import com.laoh.core.utils.HttpClientUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.json.JSONObject;
@@ -27,7 +27,6 @@ public class WxConfig {
     private long expiresTime;
     private String packageName;
     private ExecutorService pool;
-    private ConcurrentHashMap<String,Object> messageMap;
 
     /**
      * Msg注解注释的消息处理类
@@ -46,7 +45,7 @@ public class WxConfig {
      * 消息类型注解与其所注释的方法集合的映射
      */
     private Map<Class<?>, HashSet<Method>> annotationMethodsMap;
-
+    private Map<String, String> messageResult;
     private WxConfig() {
         Properties p = new Properties();
         try(InputStream inStream = this.getClass().getResourceAsStream(configFile)) {
@@ -60,8 +59,7 @@ public class WxConfig {
             Integer keepAliveTime = Integer.valueOf(p.getProperty("theadPool.keepAliveTime"));
             Integer queueSize = Integer.valueOf(p.getProperty("threadPool.queueSize"));
             this.pool = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, new ArrayBlockingQueue<Runnable>(queueSize));
-            messageMap = new ConcurrentHashMap<>();
-
+            this.messageResult = new ConcurrentHashMap<>();
         }catch (IOException e) {
             e.printStackTrace();
         }
