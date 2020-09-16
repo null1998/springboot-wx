@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laoh.core.annotation.Match;
 import com.laoh.core.annotation.ResponseXml;
-import com.laoh.core.dao.WxMessageStatusDao;
 import com.laoh.core.entity.DuplicateRemovalMessage;
 import com.laoh.core.entity.json.JsonButtonEntity;
 import com.laoh.core.entity.xml.XmlMessageRequest;
@@ -45,8 +44,6 @@ public class WxService implements IService{
     @Autowired
     RedisTemplate redisTemplate;
 
-    @Autowired
-    WxMessageStatusDao wxMessageStatusDao;
 
     /**
      * 接入认证

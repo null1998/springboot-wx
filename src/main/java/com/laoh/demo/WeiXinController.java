@@ -2,7 +2,6 @@ package com.laoh.demo;
 
 import com.laoh.core.IService;
 import com.laoh.core.WxMediaType;
-import com.laoh.core.dao.WxMessageStatusDao;
 import com.laoh.core.entity.xml.XmlMessageRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +22,6 @@ import java.io.FileOutputStream;
 public class WeiXinController {
     @Autowired
     IService iService;
-    @Autowired
-    WxMessageStatusDao wxMessageStatusDao;
 
     /**
      * 接入认证
