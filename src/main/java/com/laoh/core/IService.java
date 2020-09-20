@@ -14,109 +14,174 @@ import java.util.Map;
  */
 public interface IService {
     /**
-     * 接入认证
-     * @param signature
-     * @param timestamp
-     * @param nonce
-     * @param echo
-     * @return
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:22 2020/9/16
+     *
+     * @param: signature
+     * @param: timestamp
+     * @param: nonce
+     * @param: echo
+     * @return: java.lang.String
+     * @throws
+     **/
     public String checkSignature(String signature, String timestamp, String nonce, String echo);
     /**
-     * 获取微信callback IP地址
-     * @return
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:22 2020/9/16
+     *
+     * @return: java.util.List<java.lang.Object>
+     * @throws
+     **/
     public List<Object> getCallBackIp();
 
     /**
-     * 获取微信API接口 IP地址
-     * @return
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:22 2020/9/16
+     *
+     * @return: java.util.List<java.lang.Object>
+     * @throws
+     **/
     public List<Object> getApiDomainIp();
     /**
-     * 创建自定义菜单
-     * @param buttons 一级菜单，最多三个
-     * @return 创建菜单是否成功
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:22 2020/9/16
+     *
+     * @param: buttons
+     * @return: boolean
+     * @throws
+     **/
     public boolean menuCreate(List<JsonButtonEntity> buttons);
     /**
-     * 查询自定义菜单的配置
-     * @return 自定义菜单的配置，json格式
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:21 2020/9/16
+     *
+     * @return: java.lang.String
+     * @throws
+     **/
     public String menuQuery();
 
     /**
-     * 删除自定义菜单
-     * @return 删除菜单是否成功
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:21 2020/9/16
+     *
+     * @return: boolean
+     * @throws
+     **/
     public boolean menuDelete();
 
-    /**
-     * 接收微信消息和事件推送并返回结果
-     * @param message
-     * @return
-     */
+   /**
+    * @author yanduohuang
+    * @description //TODO
+    * @date 19:21 2020/9/16
+    *
+    * @param: message
+    * @return: java.lang.String
+    * @throws
+    **/
     public String receiveMessage(XmlMessageRequest message);
     /**
-     * 新增临时素材
-     * @param type 媒体文件类型
-     * @param path 媒体文件路径
-     * @return
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:21 2020/9/16
+     *
+     * @param: type
+     * @param: path
+     * @return: java.lang.String
+     * @throws
+     **/
     public String uploadTempMaterial(WxMediaType type, String path);
 
     /**
-     * 下载临时图片
-     * @param media_id
-     * @return
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:21 2020/9/16
+     *
+     * @param: media_id
+     * @return: org.springframework.http.ResponseEntity<byte[]>
+     * @throws
+     **/
     public ResponseEntity<byte[]> downloadTempImage(String media_id);
 
     /**
-     * 下载临时视频
-     * @param media_id
-     * @return
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:21 2020/9/16
+     *
+     * @param: media_id
+     * @return: java.lang.String
+     * @throws
+     **/
     public String downloadTempVideo(String media_id);
 
     /**
-     * 下载临时语音
-     * @param media_id
-     * @return
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:20 2020/9/16
+     *
+     * @param: media_id
+     * @return: org.springframework.http.ResponseEntity<byte[]>
+     * @throws
+     **/
     public ResponseEntity<byte[]> downloadTempVoice(String media_id);
 
     /**
-     * 新增永久素材(含视频标题和介绍)
-     * @param type
-     * @param path
-     * @param title
-     * @param introduction
-     * @return json字符串
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:18 2020/9/16
+     *
+     * @param: type
+     * @param: path
+     * @param: title
+     * @param: introduction
+     * @return: java.lang.String
+     * @throws
+     **/
     public String uploadMaterial(WxMediaType type, String path, String title, String introduction);
     /**
-     * 获取永久素材
-     * @param media_id
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:20 2020/9/16
+     *
+     * @param: media_id
+     * @return: org.springframework.http.ResponseEntity<byte[]>
+     * @throws
+     **/
     ResponseEntity<byte[]> downloadMaterial(String media_id);
 
     /**
-     * 删除永久素材
-     * @param media_id
-     * @return
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:20 2020/9/16
+     *
+     * @param: media_id
+     * @return: boolean
+     * @throws
+     **/
     boolean deleteMaterial(String media_id);
 
-    /**
-     * 获取永久素材的总数
-     * @return
-     */
+   /**
+    * @author yanduohuang
+    * @description //TODO
+    * @date 19:20 2020/9/16
+    *
+    * @return: java.util.Map<java.lang.String,java.lang.Integer>
+    * @throws
+    **/
     Map<String, Integer> getMaterialCount();
 
     /**
-     *获取永久素材的列表
-     */
+     * @author yanduohuang
+     * @description //TODO
+     * @date 19:21 2020/9/16
+     *
+     * @throws
+     **/
     void  batchGetMaterial();
 
 }

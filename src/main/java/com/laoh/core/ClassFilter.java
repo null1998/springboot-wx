@@ -1,10 +1,13 @@
 package com.laoh.core;
 
 /**
- * 类过滤器
  * @author hyd
- * @date 2020/8/6 9:49
+ * @date 2020/9/16 15:24
  */
 public interface ClassFilter {
+    /**
+     * @param
+     * @return
+     */
     boolean accept(Class<?> c);
 }

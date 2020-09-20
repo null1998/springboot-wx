@@ -6,11 +6,11 @@ import java.io.*;
  * @author hyd
  * @date 2020/7/24 10:54
  */
-public class IOUtil {
-    public static void copy(InputStream input, OutputStream output) {
+public class IoUtil {
+    private static void copy(InputStream input, OutputStream output) {
         byte[] buf = new byte[4096];
-        int bytesRead = 0;
         try {
+            int bytesRead;
             while ((bytesRead =input.read(buf)) != -1) {
                 output.write(buf, 0, bytesRead);
             }
@@ -24,8 +24,6 @@ public class IOUtil {
         ;ByteArrayOutputStream output = new ByteArrayOutputStream()){
             copy(input, output);
             bytes = output.toByteArray();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

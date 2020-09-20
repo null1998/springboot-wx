@@ -5,7 +5,7 @@ import com.laoh.core.WxConfig;
 import com.laoh.core.WxMediaType;
 import com.laoh.core.WxService;
 import com.laoh.core.entity.json.JsonButtonEntity;
-import com.laoh.core.utils.IOUtil;
+import com.laoh.core.utils.IoUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
@@ -67,7 +67,7 @@ public class WXTest {
         File file = new File("C:\\Users\\test\\Desktop\\ju.jpg");
         if (file.exists()) {
             String fileName = "C:\\Users\\test\\Desktop\\ju.jpg";
-            byte[] bytes = IOUtil.readFileToByteArray(fileName);
+            byte[] bytes = IoUtil.readFileToByteArray(fileName);
             System.out.println(Arrays.toString(bytes));
         }
     }
