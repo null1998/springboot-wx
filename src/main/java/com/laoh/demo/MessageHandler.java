@@ -24,7 +24,7 @@ public class MessageHandler {
     public Object textMessage(XmlMessageRequest message) {
         XmlTextResponse response = new XmlTextResponse(message);
         response.setMsgType(WxConstants.XML_MSG_TEXT);
-        response.setContent("该消息关键字为你好");
+        response.setContent("你好啊啊");
         return response;
     }
 
