@@ -22,3 +22,4 @@ spring:
       exclude: static/**,public/**,WEB-INF/**
 server:
   port: 80
+

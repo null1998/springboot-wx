@@ -17,6 +17,7 @@
 
     <properties>
         <java.version>1.8</java.version>
+        <common.version>1.0-SNAPSHOT</common.version>
     </properties>
 
     <dependencies>
@@ -25,6 +26,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-thymeleaf -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+            <version>2.3.4.RELEASE</version>
         </dependency>
 
         <dependency>
@@ -50,7 +57,9 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+
         </dependency>
+
         <!--springboot框架测试起步依赖-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -104,6 +113,16 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpmime</artifactId>
             <version>4.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.hyd</groupId>
+            <artifactId>common-util</artifactId>
+            <version>${common.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

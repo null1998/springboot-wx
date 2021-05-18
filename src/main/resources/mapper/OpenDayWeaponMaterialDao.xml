@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.laoh.demo.dao.OpenDayWeaponMaterialDao">
+
+    <resultMap type="com.laoh.demo.entity.OpenDayWeaponMaterial" id="OpenDayWeaponMaterialMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="weaponMaterialId" column="weapon_material_id" jdbcType="INTEGER"/>
+        <result property="day" column="day" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="OpenDayWeaponMaterialMap">
+        select id,
+               weapon_material_id,
+               day
+        from genshin.OPEN_DAY_WEAPON_MATERIAL
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="OpenDayWeaponMaterialMap">
+        select id,
+               weapon_material_id,
+               day
+        from genshin.OPEN_DAY_WEAPON_MATERIAL
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="OpenDayWeaponMaterialMap">
+        select
+        id, weapon_material_id, day
+        from genshin.OPEN_DAY_WEAPON_MATERIAL
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="weaponMaterialId != null">
+                and weapon_material_id = #{weaponMaterialId}
+            </if>
+            <if test="day != null">
+                and day = #{day}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into genshin.OPEN_DAY_WEAPON_MATERIAL(weapon_material_id, day)
+        values (#{weaponMaterialId}, #{day})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into genshin.OPEN_DAY_WEAPON_MATERIAL(weapon_material_id, day)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.weaponMaterialId}, #{entity.day})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into genshin.OPEN_DAY_WEAPON_MATERIAL(weapon_material_id, day)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.weaponMaterialId}, #{entity.day})
+        </foreach>
+        on duplicate key update
+        weapon_material_id = values(weapon_material_id) , day = values(day)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update genshin.OPEN_DAY_WEAPON_MATERIAL
+        <set>
+            <if test="weaponMaterialId != null">
+                weapon_material_id = #{weaponMaterialId},
+            </if>
+            <if test="day != null">
+                day = #{day},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from genshin.OPEN_DAY_WEAPON_MATERIAL
+        where id = #{id}
+    </delete>
+
+</mapper>
+

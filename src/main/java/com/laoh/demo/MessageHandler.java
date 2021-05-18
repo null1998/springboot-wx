@@ -19,12 +19,12 @@ public class MessageHandler {
      * @param message
      * @return
      */
-    @Text(contains = "你好")
+    @Text(contains = "原神")
     @ResponseXml
     public Object textMessage(XmlMessageRequest message) {
         XmlTextResponse response = new XmlTextResponse(message);
         response.setMsgType(WxConstants.XML_MSG_TEXT);
-        response.setContent("你好啊啊");
+        response.setContent("你好啊");
         return response;
     }
 

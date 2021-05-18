@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.laoh.demo.dao.OpenDayTalentMaterialDao">
+
+    <resultMap type="com.laoh.demo.entity.OpenDayTalentMaterial" id="OpenDayTalentMaterialMap">
+        <result property="id" column="id" jdbcType="INTEGER"/>
+        <result property="talentMaterialId" column="talent_material_id" jdbcType="INTEGER"/>
+        <result property="day" column="day" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="OpenDayTalentMaterialMap">
+        select id,
+               talent_material_id,
+               day
+        from genshin.OPEN_DAY_TALENT_MATERIAL
+        where id = #{id}
+    </select>
+
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="OpenDayTalentMaterialMap">
+        select id,
+               talent_material_id,
+               day
+        from genshin.OPEN_DAY_TALENT_MATERIAL
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="OpenDayTalentMaterialMap">
+        select
+        id, talent_material_id, day
+        from genshin.OPEN_DAY_TALENT_MATERIAL
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="talentMaterialId != null">
+                and talent_material_id = #{talentMaterialId}
+            </if>
+            <if test="day != null">
+                and day = #{day}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        insert into genshin.OPEN_DAY_TALENT_MATERIAL(talent_material_id, day)
+        values (#{talentMaterialId}, #{day})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into genshin.OPEN_DAY_TALENT_MATERIAL(talent_material_id, day)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.talentMaterialId}, #{entity.day})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="id" useGeneratedKeys="true">
+        insert into genshin.OPEN_DAY_TALENT_MATERIAL(talent_material_id, day)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.talentMaterialId}, #{entity.day})
+        </foreach>
+        on duplicate key update
+        talent_material_id = values(talent_material_id) , day = values(day)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update genshin.OPEN_DAY_TALENT_MATERIAL
+        <set>
+            <if test="talentMaterialId != null">
+                talent_material_id = #{talentMaterialId},
+            </if>
+            <if test="day != null">
+                day = #{day},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete
+        from genshin.OPEN_DAY_TALENT_MATERIAL
+        where id = #{id}
+    </delete>
+
+</mapper>
+
