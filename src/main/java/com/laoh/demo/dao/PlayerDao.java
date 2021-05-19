@@ -12,7 +12,13 @@ import java.util.List;
  * @since 2021-05-19 00:40:05
  */
 public interface PlayerDao {
-
+    /**
+     * 输入培养角色列表和星期几，查询当天需要刷天赋材料的角色
+     * @param day 星期几
+     * @param players 待培养的角色列表
+     * @return 当天需要刷取天赋材料的角色
+     */
+    List<String> prepareTalentMaterialForPlayer(@Param("day") Integer day, @Param("players") List<String> players);
     /**
      * 通过ID查询单条数据
      *

@@ -1,5 +1,6 @@
 package com.laoh.demo.service.impl;
 
+import com.hyd.common.util.IdGenerator;
 import com.laoh.demo.entity.WeaponMaterial;
 import com.laoh.demo.dao.WeaponMaterialDao;
 import com.laoh.demo.service.WeaponMaterialService;
@@ -12,12 +13,14 @@ import java.util.List;
  * 武器材料表(WeaponMaterial)表服务实现类
  *
  * @author makejava
- * @since 2021-05-19 00:40:09
+ * @since 2021-05-19 23:59:24
  */
 @Service("weaponMaterialService")
 public class WeaponMaterialServiceImpl implements WeaponMaterialService {
     @Resource
     private WeaponMaterialDao weaponMaterialDao;
+    @Resource
+    private IdGenerator idGenerator;
 
     /**
      * 通过ID查询单条数据
@@ -50,6 +53,7 @@ public class WeaponMaterialServiceImpl implements WeaponMaterialService {
      */
     @Override
     public WeaponMaterial insert(WeaponMaterial weaponMaterial) {
+        weaponMaterial.setId(idGenerator.snowflakeId());
         this.weaponMaterialDao.insert(weaponMaterial);
         return weaponMaterial;
     }

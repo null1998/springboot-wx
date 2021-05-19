@@ -4,7 +4,18 @@ import com.laoh.core.WxConstants;
 import com.laoh.core.annotation.*;
 import com.laoh.core.entity.xml.XmlMessageRequest;
 import com.laoh.core.entity.xml.XmlTextResponse;
+import com.laoh.demo.dao.PlayerDao;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 消息处理类示例
@@ -13,7 +24,19 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @MsgHandler
-public class MessageHandler {
+@Component
+public class MessageHandler implements ApplicationContextAware {
+
+    private static ApplicationContext applicationContext;
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        if (applicationContext != null) {
+            MessageHandler.applicationContext = applicationContext;
+        }
+    }
+    public static Object getBean(String beanName) {
+        return MessageHandler.applicationContext.getBean(beanName);
+    }
     /**
      * 执行文本消息的方法
      * @param message
@@ -24,7 +47,20 @@ public class MessageHandler {
     public Object textMessage(XmlMessageRequest message) {
         XmlTextResponse response = new XmlTextResponse(message);
         response.setMsgType(WxConstants.XML_MSG_TEXT);
-        response.setContent("你好啊");
+        StringBuilder stringBuilder = new StringBuilder();
+        List<String> players = Arrays.asList(new String[]{"菲谢尔","迪奥娜","香菱","班尼特","莫娜","甘雨","胡桃","温迪",
+        "钟离","行秋"});
+        LocalDate now = LocalDate.now();
+        List<String> todayPlayers = ((PlayerDao)getBean("playerDao")).prepareTalentMaterialForPlayer(now.getDayOfWeek().getValue(), players);
+        if (todayPlayers.isEmpty()) {
+            stringBuilder.append("今天没有需要培养的角色");
+        } else {
+            stringBuilder.append("今天需要培养的角色有：");
+            for (String todayPlayer : todayPlayers) {
+                stringBuilder.append(todayPlayer+"\n");
+            }
+        }
+        response.setContent(stringBuilder.toString());
         return response;
     }
 
@@ -88,4 +124,6 @@ public class MessageHandler {
     public Object viewEvent2(XmlMessageRequest message) {
         return "success";
     }
+
+
 }

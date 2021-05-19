@@ -6,7 +6,16 @@
         <result property="id" column="id" jdbcType="INTEGER"/>
         <result property="name" column="name" jdbcType="VARCHAR"/>
     </resultMap>
-
+    <!--输入培养角色列表和星期几，查询当天需要刷天赋材料的角色-->
+    <select id="prepareTalentMaterialForPlayer" resultType="java.lang.String">
+        SELECT PLAYER.name
+        FROM PLAYER LEFT JOIN PLAYER_NEED_TALENT_MATERIAL ON PLAYER.id = PLAYER_NEED_TALENT_MATERIAL.player_id
+                    LEFT JOIN OPEN_DAY_TALENT_MATERIAL ON PLAYER_NEED_TALENT_MATERIAL.talent_material_id = OPEN_DAY_TALENT_MATERIAL.talent_material_id
+        WHERE OPEN_DAY_TALENT_MATERIAL.day = #{day} AND PLAYER.name IN
+        <foreach collection="players" item="player" index="index" open="(" close=")" separator=",">
+            #{player}
+        </foreach>
+    </select>
     <!--查询单个-->
     <select id="queryById" resultMap="PlayerMap">
         select id,
