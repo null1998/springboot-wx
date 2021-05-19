@@ -1,5 +1,6 @@
 package com.laoh.demo.service.impl;
 
+import com.hyd.common.util.IdGenerator;
 import com.laoh.demo.entity.OpenDayTalentMaterial;
 import com.laoh.demo.dao.OpenDayTalentMaterialDao;
 import com.laoh.demo.service.OpenDayTalentMaterialService;
@@ -12,12 +13,14 @@ import java.util.List;
  * 天赋材料开放日表(OpenDayTalentMaterial)表服务实现类
  *
  * @author makejava
- * @since 2021-05-19 00:39:58
+ * @since 2021-05-19 00:59:03
  */
 @Service("openDayTalentMaterialService")
 public class OpenDayTalentMaterialServiceImpl implements OpenDayTalentMaterialService {
     @Resource
     private OpenDayTalentMaterialDao openDayTalentMaterialDao;
+    @Resource
+    private IdGenerator idGenerator;
 
     /**
      * 通过ID查询单条数据
@@ -50,6 +53,7 @@ public class OpenDayTalentMaterialServiceImpl implements OpenDayTalentMaterialSe
      */
     @Override
     public OpenDayTalentMaterial insert(OpenDayTalentMaterial openDayTalentMaterial) {
+        openDayTalentMaterial.setId(idGenerator.snowflakeId());
         this.openDayTalentMaterialDao.insert(openDayTalentMaterial);
         return openDayTalentMaterial;
     }

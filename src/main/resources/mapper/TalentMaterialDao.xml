@@ -39,16 +39,16 @@
     </select>
 
     <!--新增所有列-->
-    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into genshin.TALENT_MATERIAL(name)
-        values (#{name})
+    <insert id="insert">
+        insert into genshin.TALENT_MATERIAL(id, name)
+        values (#{id}, #{name})
     </insert>
 
-    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into genshin.TALENT_MATERIAL(name)
+    <insert id="insertBatch">
+        insert into genshin.TALENT_MATERIAL(id, name)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.name})
+            (#{entity.id}, #{entity.name})
         </foreach>
     </insert>
 

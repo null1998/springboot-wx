@@ -1,5 +1,6 @@
 package com.laoh.demo.service.impl;
 
+import com.hyd.common.util.IdGenerator;
 import com.laoh.demo.entity.PlayerNeedTalentMaterial;
 import com.laoh.demo.dao.PlayerNeedTalentMaterialDao;
 import com.laoh.demo.service.PlayerNeedTalentMaterialService;
@@ -12,12 +13,14 @@ import java.util.List;
  * 原神角色所需天赋材料表(PlayerNeedTalentMaterial)表服务实现类
  *
  * @author makejava
- * @since 2021-05-19 00:40:07
+ * @since 2021-05-19 00:59:17
  */
 @Service("playerNeedTalentMaterialService")
 public class PlayerNeedTalentMaterialServiceImpl implements PlayerNeedTalentMaterialService {
     @Resource
     private PlayerNeedTalentMaterialDao playerNeedTalentMaterialDao;
+    @Resource
+    private IdGenerator idGenerator;
 
     /**
      * 通过ID查询单条数据
@@ -50,6 +53,7 @@ public class PlayerNeedTalentMaterialServiceImpl implements PlayerNeedTalentMate
      */
     @Override
     public PlayerNeedTalentMaterial insert(PlayerNeedTalentMaterial playerNeedTalentMaterial) {
+        playerNeedTalentMaterial.setId(idGenerator.snowflakeId());
         this.playerNeedTalentMaterialDao.insert(playerNeedTalentMaterial);
         return playerNeedTalentMaterial;
     }

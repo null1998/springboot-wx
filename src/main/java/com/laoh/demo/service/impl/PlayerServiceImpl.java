@@ -1,5 +1,6 @@
 package com.laoh.demo.service.impl;
 
+import com.hyd.common.util.IdGenerator;
 import com.laoh.demo.entity.Player;
 import com.laoh.demo.dao.PlayerDao;
 import com.laoh.demo.service.PlayerService;
@@ -12,12 +13,14 @@ import java.util.List;
  * 原神角色表(Player)表服务实现类
  *
  * @author makejava
- * @since 2021-05-19 00:40:06
+ * @since 2021-05-19 00:59:16
  */
 @Service("playerService")
 public class PlayerServiceImpl implements PlayerService {
     @Resource
     private PlayerDao playerDao;
+    @Resource
+    private IdGenerator idGenerator;
 
     /**
      * 通过ID查询单条数据
@@ -50,6 +53,7 @@ public class PlayerServiceImpl implements PlayerService {
      */
     @Override
     public Player insert(Player player) {
+        player.setId(idGenerator.snowflakeId());
         this.playerDao.insert(player);
         return player;
     }

@@ -5,7 +5,10 @@ package com.laoh.demo;/**
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @description: TODO
@@ -14,12 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @version 1.0
  */
 @Controller
-@RequestMapping("my")
 public class MyController {
-    @RequestMapping("hello")
-    public String hello(ModelMap map) {
-        map.put("str", "hello");
-        System.out.println("hello");
-        return "login";
+    @GetMapping("/hello")
+    @ResponseBody
+    public String hello() {
+        return "hello";
     }
 }

@@ -24,6 +24,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
 import java.lang.reflect.Method;
@@ -43,7 +45,6 @@ public class WxService implements IService{
     RestTemplate restTemplate = new RestTemplate();
     @Autowired
     RedisTemplate redisTemplate;
-
 
     /**
      * 接入认证

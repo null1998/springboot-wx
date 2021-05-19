@@ -1,5 +1,6 @@
 package com.laoh.demo.service.impl;
 
+import com.hyd.common.util.IdGenerator;
 import com.laoh.demo.entity.OpenDayWeaponMaterial;
 import com.laoh.demo.dao.OpenDayWeaponMaterialDao;
 import com.laoh.demo.service.OpenDayWeaponMaterialService;
@@ -12,12 +13,14 @@ import java.util.List;
  * 武器材料开放日表(OpenDayWeaponMaterial)表服务实现类
  *
  * @author makejava
- * @since 2021-05-19 00:40:05
+ * @since 2021-05-19 00:59:14
  */
 @Service("openDayWeaponMaterialService")
 public class OpenDayWeaponMaterialServiceImpl implements OpenDayWeaponMaterialService {
     @Resource
     private OpenDayWeaponMaterialDao openDayWeaponMaterialDao;
+    @Resource
+    private IdGenerator idGenerator;
 
     /**
      * 通过ID查询单条数据
@@ -50,6 +53,7 @@ public class OpenDayWeaponMaterialServiceImpl implements OpenDayWeaponMaterialSe
      */
     @Override
     public OpenDayWeaponMaterial insert(OpenDayWeaponMaterial openDayWeaponMaterial) {
+        openDayWeaponMaterial.setId(idGenerator.snowflakeId());
         this.openDayWeaponMaterialDao.insert(openDayWeaponMaterial);
         return openDayWeaponMaterial;
     }

@@ -1,5 +1,6 @@
 package com.laoh.demo.service.impl;
 
+import com.hyd.common.util.IdGenerator;
 import com.laoh.demo.entity.TalentMaterial;
 import com.laoh.demo.dao.TalentMaterialDao;
 import com.laoh.demo.service.TalentMaterialService;
@@ -12,12 +13,14 @@ import java.util.List;
  * 天赋材料表(TalentMaterial)表服务实现类
  *
  * @author makejava
- * @since 2021-05-19 00:40:08
+ * @since 2021-05-19 00:59:18
  */
 @Service("talentMaterialService")
 public class TalentMaterialServiceImpl implements TalentMaterialService {
     @Resource
     private TalentMaterialDao talentMaterialDao;
+    @Resource
+    private IdGenerator idGenerator;
 
     /**
      * 通过ID查询单条数据
@@ -50,6 +53,7 @@ public class TalentMaterialServiceImpl implements TalentMaterialService {
      */
     @Override
     public TalentMaterial insert(TalentMaterial talentMaterial) {
+        talentMaterial.setId(idGenerator.snowflakeId());
         this.talentMaterialDao.insert(talentMaterial);
         return talentMaterial;
     }

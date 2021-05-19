@@ -22,7 +22,6 @@ import java.io.FileOutputStream;
 public class WeiXinController {
     @Autowired
     IService iService;
-
     /**
      * 接入认证
      * @param signature

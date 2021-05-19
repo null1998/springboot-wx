@@ -73,8 +73,9 @@ public class WxApplication implements ApplicationRunner {
     public void scanAnnotation() throws Exception {
         Map<String, Class<?>> map = new HashMap<>();
         Set<Class<?>> set = new HashSet<>();
-        URL url = getClass().getClassLoader().getResource("");
+        URL url = getClass().getResource("/");
         String classPath = url.toURI().getPath();
+        classPath = classPath.replace("test-classes","classes");
         String packageName = "com.laoh.core.annotation";
         File file = new File(classPath+packageName.replace(".","/"));
         File[] files = file.listFiles(new FileFilter() {

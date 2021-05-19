@@ -45,16 +45,16 @@
     </select>
 
     <!--新增所有列-->
-    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
-        insert into genshin.OPEN_DAY_TALENT_MATERIAL(talent_material_id, day)
-        values (#{talentMaterialId}, #{day})
+    <insert id="insert">
+        insert into genshin.OPEN_DAY_TALENT_MATERIAL(id, talent_material_id, day)
+        values (#{id}, #{talentMaterialId}, #{day})
     </insert>
 
-    <insert id="insertBatch" keyProperty="id" useGeneratedKeys="true">
-        insert into genshin.OPEN_DAY_TALENT_MATERIAL(talent_material_id, day)
+    <insert id="insertBatch">
+        insert into genshin.OPEN_DAY_TALENT_MATERIAL(id, talent_material_id, day)
         values
         <foreach collection="entities" item="entity" separator=",">
-            (#{entity.talentMaterialId}, #{entity.day})
+            (#{entity.id}, #{entity.talentMaterialId}, #{entity.day})
         </foreach>
     </insert>
 
