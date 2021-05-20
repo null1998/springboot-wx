@@ -12,7 +12,9 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -50,8 +52,12 @@ public class MessageHandler implements ApplicationContextAware {
         StringBuilder stringBuilder = new StringBuilder();
         List<String> players = Arrays.asList(new String[]{"菲谢尔","迪奥娜","香菱","班尼特","莫娜","甘雨","胡桃","温迪",
         "钟离","行秋"});
-        LocalDate now = LocalDate.now();
-        List<String> todayPlayers = ((PlayerDao)getBean("playerDao")).prepareTalentMaterialForPlayer(now.getDayOfWeek().getValue(), players);
+        LocalDateTime now = LocalDateTime.now();
+        int day = now.getDayOfWeek().getValue();
+        if (now.getHour() < 4) {
+            day = day == 1 ? 7 : day - 1;
+        }
+        List<String> todayPlayers = ((PlayerDao)getBean("playerDao")).prepareTalentMaterialForPlayer(day, players);
         if (todayPlayers.isEmpty()) {
             stringBuilder.append("今天没有需要培养的角色");
         } else {

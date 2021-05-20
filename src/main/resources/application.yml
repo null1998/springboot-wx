@@ -11,8 +11,8 @@ spring:
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
   redis:
-    host: localhost
-    port: 6379
+    host: 114.55.137.13
+    port: 9001
   thymeleaf:
     cache: false
   devtools:
