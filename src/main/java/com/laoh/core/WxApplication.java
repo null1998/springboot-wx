@@ -4,6 +4,7 @@ package com.laoh.core;
 import com.laoh.core.annotation.Msg;
 import com.laoh.core.annotation.MsgHandler;
 import com.laoh.core.utils.ClassScanner;
+import com.laoh.core.utils.ScannerUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -39,16 +40,7 @@ public class WxApplication implements ApplicationRunner {
     public void scanHandler() throws URISyntaxException {
         WxConfig wxConfig = WxConfig.getInstance();
         String packageName = wxConfig.getPackageName();
-        URL url = getClass().getClassLoader().getResource("");
-        String classPath = url.toURI().getPath();
-        ClassScanner classScanner = new ClassScanner(classPath);
-        classScanner.addFilter(new ClassFilter() {
-            @Override
-            public boolean accept(Class<?> c) {
-                return c.getAnnotation(MsgHandler.class) != null;
-            }
-        });
-        Collection<Class<?>> handlers = classScanner.scan(packageName);
+        List<Class<?>> handlers = ScannerUtil.getClassesWithAnnotationFromPackage(packageName, MsgHandler.class);
         Map<Class<?>, HashSet<Method>> annotMethodMap = new HashMap<>();
         for (Class<?> handler : handlers) {
             Method[] methods = handler.getDeclaredMethods();
@@ -73,19 +65,9 @@ public class WxApplication implements ApplicationRunner {
     public void scanAnnotation() throws Exception {
         Map<String, Class<?>> map = new HashMap<>();
         Set<Class<?>> set = new HashSet<>();
-        URL url = getClass().getResource("/");
-        String classPath = url.toURI().getPath();
-        classPath = classPath.replace("test-classes","classes");
         String packageName = "com.laoh.core.annotation";
-        File file = new File(classPath+packageName.replace(".","/"));
-        File[] files = file.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.getName().endsWith(".class");
-            }
-        });
-        for (File f : files) {
-            Class clazz = Class.forName(packageName+"."+f.getName().replace(".class",""));
+        List<Class<?>> clazzList = ScannerUtil.getClassesWithAnnotationFromPackage(packageName, Msg.class);
+        for (Class<?> clazz : clazzList) {
             if (clazz.isAnnotationPresent(Msg.class)) {
                 map.put((String) clazz.getAnnotation(Msg.class).annotationType().getMethod("name").invoke(clazz.getAnnotation(Msg.class)), clazz);
                 set.add(clazz);
